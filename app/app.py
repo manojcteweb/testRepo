@@ -1,42 +1,35 @@
 ```python
-from datetime import datetime, timedelta
-from collections import defaultdict
+class LoanOffer:
+    def __init__(self, offer_id, terms, customer_email, customer_phone):
+        self.offer_id = offer_id
+        self.terms = terms
+        self.customer_email = customer_email
+        self.customer_phone = customer_phone
+        self.status = 'Pending'
 
-class DiaryManager:
-    def __init__(self):
-        self.tasks = {}
-        self.notifications = defaultdict(list)
-        self.audit_trail = []
+    def view_offer_details(self):
+        return f"Loan Offer ID: {self.offer_id}\nTerms: {self.terms}"
 
-    def set_reminder(self, task_id, user, date, urgency):
-        self.tasks[task_id] = {'user': user, 'date': date, 'urgency': urgency, 'completed': False}
-        self.audit_trail.append((task_id, 'created', datetime.now()))
+    def accept_offer(self):
+        if self.confirm_acceptance():
+            self.status = 'Accepted'
+            self.send_confirmation()
+            self.record_acceptance()
 
-    def send_notifications(self):
-        for task_id, task in self.tasks.items():
-            if not task['completed'] and task['date'] <= datetime.now() + timedelta(days=1):
-                self.notifications[task['user']].append(f"Reminder for task {task_id} due on {task['date']}")
-                self.notifications['investigator'].append(f"Reminder for task {task_id} due on {task['date']}")
+    def confirm_acceptance(self):
+        # Simulate user confirmation
+        return True
 
-    def mark_task_completed(self, task_id):
-        if task_id in self.tasks:
-            self.tasks[task_id]['completed'] = True
-            self.audit_trail.append((task_id, 'completed', datetime.now()))
+    def send_confirmation(self):
+        # Simulate sending email/SMS
+        print(f"Confirmation sent to {self.customer_email} and {self.customer_phone}")
 
-    def view_tasks(self, user=None, date=None, urgency=None):
-        return [task_id for task_id, task in self.tasks.items()
-                if (user is None or task['user'] == user) and
-                   (date is None or task['date'] == date) and
-                   (urgency is None or task['urgency'] == urgency)]
-
-    def get_audit_trail(self):
-        return self.audit_trail
+    def record_acceptance(self):
+        # Simulate recording acceptance securely
+        print(f"Loan offer {self.offer_id} status updated to {self.status}")
 
 # Example usage
-diary_manager = DiaryManager()
-diary_manager.set_reminder('task1', 'LSO', datetime(2023, 10, 15), 'high')
-diary_manager.send_notifications()
-diary_manager.mark_task_completed('task1')
-tasks = diary_manager.view_tasks(user='LSO')
-audit = diary_manager.get_audit_trail()
+loan_offer = LoanOffer(offer_id=123, terms="12 months at 5% interest", customer_email="customer@example.com", customer_phone="123-456-7890")
+print(loan_offer.view_offer_details())
+loan_offer.accept_offer()
 ```
