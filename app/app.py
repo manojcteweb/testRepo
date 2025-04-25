@@ -4,36 +4,37 @@ class TimeTrackingIntegration:
         self.pms = project_management_system
         self.integrated_tools = []
 
-    def configure_integration(self, tool):
-        if tool not in self.integrated_tools:
-            self.integrated_tools.append(tool)
-            self.pms.add_integration(tool)
+    def configure_integration(self, tools):
+        self.integrated_tools = tools
 
     def import_time_data(self):
         for tool in self.integrated_tools:
-            time_data = tool.get_time_data()
+            time_data = tool.fetch_time_data()
             self.pms.update_time_tracking(time_data)
 
-    def sync_data(self):
+    def sync_real_time(self):
         for tool in self.integrated_tools:
-            time_data = tool.sync_time_data()
-            self.pms.update_time_tracking(time_data)
+            tool.on_time_update(self.import_time_data)
+
+class TimeTrackingTool:
+    def fetch_time_data(self):
+        # Implementation to fetch time data from the tool
+        pass
+
+    def on_time_update(self, callback):
+        # Implementation to trigger callback on time data update
+        pass
 
 class ProjectManagementSystem:
-    def __init__(self):
-        self.integrations = []
-
-    def add_integration(self, tool):
-        self.integrations.append(tool)
-
     def update_time_tracking(self, time_data):
-        # Update the system with the new time data
+        # Implementation to update time tracking data in the system
         pass
 
 # Example usage
 pms = ProjectManagementSystem()
 integration = TimeTrackingIntegration(pms)
-integration.configure_integration(SomeTimeTrackingTool())
-integration.import_time_data()
-integration.sync_data()
+tool1 = TimeTrackingTool()
+tool2 = TimeTrackingTool()
+integration.configure_integration([tool1, tool2])
+integration.sync_real_time()
 ```
