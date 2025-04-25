@@ -1,43 +1,39 @@
 ```python
 import requests
-import logging
+from flask import Flask, jsonify, request
 
-class HRMIntegration:
-    def __init__(self, hrm_api_url, api_key):
-        self.hrm_api_url = hrm_api_url
-        self.api_key = api_key
-        self.headers = {'Authorization': f'Bearer {self.api_key}'}
+app = Flask(__name__)
 
-    def fetch_employee_data(self):
-        try:
-            response = requests.get(f"{self.hrm_api_url}/employees", headers=self.headers)
-            response.raise_for_status()
-            return response.json()
-        except requests.exceptions.RequestException as e:
-            logging.error(f"Failed to fetch employee data: {e}")
-            return None
+CRM_API_URL = "https://crm.example.com/api/customers"
+PROJECT_MANAGEMENT_CUSTOMERS = {}
 
-    def update_project_management_system(self, employee_data):
-        # Placeholder for updating the project management system
-        pass
+def fetch_customers_from_crm():
+    try:
+        response = requests.get(CRM_API_URL)
+        response.raise_for_status()
+        return response.json()
+    except requests.RequestException as e:
+        return {"error": str(e)}
 
-    def sync_with_hrm(self):
-        employee_data = self.fetch_employee_data()
-        if employee_data:
-            self.update_project_management_system(employee_data)
+def update_local_customers():
+    customers = fetch_customers_from_crm()
+    if "error" not in customers:
+        PROJECT_MANAGEMENT_CUSTOMERS.update({c['id']: c for c in customers})
 
-    def assign_team_members(self, project_id, team_members):
-        # Placeholder for assigning team members to a project
-        pass
+@app.route('/customers', methods=['GET'])
+def get_customers():
+    return jsonify(list(PROJECT_MANAGEMENT_CUSTOMERS.values()))
 
-    def secure_data_transfer(self, data):
-        # Placeholder for secure data transfer implementation
-        pass
+@app.route('/sync', methods=['POST'])
+def sync_customers():
+    update_local_customers()
+    return jsonify({"status": "success"})
 
-    def log_integration_errors(self, error_message):
-        logging.error(error_message)
+@app.errorhandler(Exception)
+def handle_exception(e):
+    return jsonify({"error": str(e)}), 500
 
-# Example usage
-hrm_integration = HRMIntegration(hrm_api_url="https://api.hrm-system.com", api_key="your_api_key")
-hrm_integration.sync_with_hrm()
+if __name__ == '__main__':
+    update_local_customers()
+    app.run(debug=True)
 ```
