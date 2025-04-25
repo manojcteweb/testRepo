@@ -23,16 +23,16 @@ class FinancialSystemIntegration:
         response = requests.get(f"{self.api_url}/projects/{project_id}/financials", headers={"Authorization": f"Bearer {self.api_key}"})
         return response.json()
 
-    def handle_billing_options(self, billing_type, data):
-        if billing_type == "fixed_rate":
+    def handle_billing_options(self, billing_option, data):
+        if billing_option == "fixed_rate":
             return self.transfer_billing_data(data)
-        elif billing_type == "time_material":
+        elif billing_option == "time_material":
             return self.transfer_billing_data(data)
         return False
 
     def error_handling(self, error):
-        print(f"Error: {error}")
-        # Implement logging or alerting mechanisms here
+        print(f"Error occurred: {error}")
+        # Implement logging or retry mechanisms here
 
     def comply_with_regulations(self):
         # Placeholder for compliance checks
@@ -46,8 +46,8 @@ def main():
             integration.error_handling("Failed to transfer billing data")
         project_financials = integration.manage_project_financials(project_id=123)
         print(project_financials)
-    else:
-        integration.error_handling("Failed to connect to financial system")
+        if not integration.comply_with_regulations():
+            integration.error_handling("Compliance check failed")
 
 if __name__ == "__main__":
     main()
